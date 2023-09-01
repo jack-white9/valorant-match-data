@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "valorant-accuracy-tracker"
+version = "0.1.0"
+description = ""
+authors = ["Jack White <jfw793@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+valo-api = "^2.0.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
