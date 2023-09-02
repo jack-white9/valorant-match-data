@@ -1,4 +1,5 @@
 import os
+import json
 import boto3
 import requests
 from dotenv import load_dotenv
@@ -13,11 +14,14 @@ class Ingestion:
         )
 
     def get_match_data(self, affinity, puuid):
-        res = requests.get(
+        response = requests.get(
             f"https://api.henrikdev.xyz/valorant/v3/by-puuid/matches/{affinity}/{puuid}"
         )
-        print(res.status_code)
-        return res.text
+        # ignore response headers, return data only
+        json_data = json.loads(response.text)["data"][0]
+        # encode as UTF-8 bytes for S3 upload
+        data_dump = bytes(json.dumps(json_data).encode("UTF-8"))
+        return data_dump
 
     def upload_to_s3(self, bucket, key, file):
         self.client.put_object(Body=file, Bucket=bucket, Key=key)
