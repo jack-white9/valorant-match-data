@@ -3,6 +3,7 @@ import json
 import boto3
 import requests
 from dotenv import load_dotenv
+from datetime import datetime
 
 
 class Ingestion:
@@ -14,9 +15,8 @@ class Ingestion:
         )
 
     def get_match_data(self, affinity, puuid):
-        response = requests.get(
-            f"https://api.henrikdev.xyz/valorant/v3/by-puuid/matches/{affinity}/{puuid}?mode=competitive&size=100"
-        )
+        MATCH_DATA_ENDPOINT = f"https://api.henrikdev.xyz/valorant/v3/by-puuid/matches/{affinity}/{puuid}?mode=competitive&size=100"
+        response = requests.get(MATCH_DATA_ENDPOINT)
         # ignore response headers, return data only
         json_data = json.loads(response.text)["data"]
         # encode as UTF-8 bytes for S3 upload
@@ -37,8 +37,9 @@ def main():
     puuid = "2ecce5c6-6d31-579c-bf56-bf6743e19270"
     data = ingestion.get_match_data(region, puuid)
 
+    date_string = datetime.today().strftime("%Y-%m-%d")
     bucket_name = "valorant-data-raw"
-    file_name = "competitive_match_data.json"
+    file_name = f"competitive-match-data-{date_string}.json"
     ingestion.upload_to_s3(bucket_name, file_name, data)
 
 
