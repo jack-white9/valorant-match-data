@@ -15,10 +15,10 @@ class Ingestion:
 
     def get_match_data(self, affinity, puuid):
         response = requests.get(
-            f"https://api.henrikdev.xyz/valorant/v3/by-puuid/matches/{affinity}/{puuid}"
+            f"https://api.henrikdev.xyz/valorant/v3/by-puuid/matches/{affinity}/{puuid}?mode=competitive&size=100"
         )
         # ignore response headers, return data only
-        json_data = json.loads(response.text)["data"][0]
+        json_data = json.loads(response.text)["data"]
         # encode as UTF-8 bytes for S3 upload
         data_dump = bytes(json.dumps(json_data).encode("UTF-8"))
         return data_dump
@@ -38,7 +38,7 @@ def main():
     data = ingestion.get_match_data(region, puuid)
 
     bucket_name = "valorant-data-raw"
-    file_name = "valorant_data.json"
+    file_name = "competitive_match_data.json"
     ingestion.upload_to_s3(bucket_name, file_name, data)
 
 
