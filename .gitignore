@@ -1,2 +1,9 @@
+# Python
 poetry.lock
+
+# Terraform
+.terraform
+*.tfstate
+
+# Misc
 .env
