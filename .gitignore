@@ -7,3 +7,4 @@ poetry.lock
 
 # Misc
 .env
+.vscode
