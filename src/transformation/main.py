@@ -20,22 +20,22 @@ def curate(raw_match_data):
     for match in raw_match_data:
         for player in match['players']['all_players']:
             column_to_value_map = {
-                'match_id': match['metadata']['matchid'],
-                'match_timestamp_local': match['metadata']['game_start_patched'],
-                'map_name': match['metadata']['map'],
-                'rounds_played': match['metadata']['rounds_played'],
-                'player_name': player['name'],
-                'agent_name': player['character'],
-                'session_playtime': player['session_playtime'].get('minutes', ''),
-                'score': player['stats']['score'],
-                'kills': player['stats']['kills'],
-                'deaths': player['stats']['deaths'],
-                'assists': player['stats']['assists'],
-                'headshots': player['stats']['headshots'],
-                'bodyshots': player['stats']['bodyshots'],
-                'legshots': player['stats']['legshots'],
-                'dmg_made': player['damage_made'],
-                'dmg_received': player['damage_received']
+                'match_id': match['metadata'].get('matchid', ''),
+                'match_timestamp_local': match['metadata'].get('game_start_patched', ''),
+                'map_name': match['metadata'].get('map', ''),
+                'rounds_played': match['metadata'].get('rounds_played', 0),
+                'player_name': player.get('name', ''),
+                'agent_name': player.get('character', ''),
+                'session_playtime_minutes': player['session_playtime'].get('minutes', 0),
+                'score': player['stats'].get('score', 0),
+                'kills': player['stats'].get('kills', 0),
+                'deaths': player['stats'].get('deaths', 0),
+                'assists': player['stats'].get('assists', 0),
+                'headshots': player['stats'].get('headshots', 0),
+                'bodyshots': player['stats'].get('bodyshots', 0),
+                'legshots': player['stats'].get('legshots', 0),
+                'dmg_made': player.get('damage_made', 0),
+                'dmg_received': player.get('damage_received', 0)
             }
 
             for col, value in column_to_value_map.items():
