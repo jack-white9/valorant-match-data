@@ -33,8 +33,8 @@ def main():
     AWS_SECRET_ACCESS_KEY = os.getenv("SECRET_ACCESS_KEY")
     ingestion = Ingestion(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
-    region = "ap"
-    puuid = "2ecce5c6-6d31-579c-bf56-bf6743e19270"
+    region = os.getenv("REGION")
+    puuid = os.getenv("PUUID")
     data = ingestion.get_match_data(region, puuid)
 
     date_string = datetime.today().strftime("%Y-%m-%d")
