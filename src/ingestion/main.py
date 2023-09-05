@@ -37,9 +37,8 @@ def main():
     puuid = os.getenv("PUUID")
     data = ingestion.get_match_data(region, puuid)
 
-    date_string = datetime.today().strftime("%Y-%m-%d")
     bucket_name = "valorant-data-raw"
-    file_name = f"competitive-match-data-{date_string}.json"
+    file_name = f"competitive-match-data.json"
     ingestion.upload_to_s3(bucket_name, file_name, data)
 
 

@@ -2,15 +2,19 @@ import os
 import json
 import boto3
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+from dotenv import load_dotenv
 from collections import defaultdict
 
 
 def get_s3_client(access_key, secret_key):
-    return boto3.client(
+    client = boto3.client(
         "s3",
         aws_access_key_id=access_key,
         aws_secret_access_key=secret_key,
     )
+    return client
 
 
 def get_json_from_s3(client, bucket, key):
@@ -58,17 +62,30 @@ def curate(raw_match_data):
     return map
 
 
+def write_df_to_s3(df, s3_client, bucket, key):
+    parquet_table = pa.Table.from_pandas(df)
+    pq.write_table(parquet_table, "competitive-match-data.parquet")
+    s3_client.upload_file("competitive-match-data.parquet", bucket, key)
+
+
 def main():
+    # initialise session
+    load_dotenv()
     AWS_ACCESS_KEY_ID = os.getenv("ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.getenv("SECRET_ACCESS_KEY")
-
     s3_client = get_s3_client(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+
+    # take data from raw -> curated
     raw_data = get_json_from_s3(
-        s3_client, "valorant-data-raw", "competitive-match-data-2023-09-03.json"
+        s3_client, "valorant-data-raw", "competitive-match-data.json"
     )
     curated_data = curate(raw_data)
+
+    # upload curated data to s3 as parquet
     df = pd.DataFrame(curated_data)
-    print(df)
+    write_df_to_s3(
+        df, s3_client, "valorant-data-curated", "competitive-match-data.parquet"
+    )
 
 
 if __name__ == "__main__":
