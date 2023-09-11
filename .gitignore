@@ -4,7 +4,11 @@ poetry.lock
 # Terraform
 .terraform
 *.tfstate
+*.tfstate.*
+*.zip
 
 # Misc
 .env
 .vscode
+*.parquet
+.idea

@@ -42,9 +42,5 @@ def main():
     ingestion.upload_to_s3(bucket_name, file_name, data)
 
 
-def lambda_handler(event, context):
-    main()
-
-
 if __name__ == "__main__":
     main()
