@@ -31,17 +31,24 @@ resource "aws_s3_bucket" "curated" {
   }
 }
 
-resource "aws_s3_bucket" "lambda_package" {
-  bucket = "valorant-lambda-packages"
+resource "aws_s3_bucket" "raw_lambda_build" {
+  bucket = "raw-valorant-lambda-build"
 
   tags = {
     Project = var.project
   }
 }
 
+resource "aws_s3_bucket" "curated_lambda_build" {
+  bucket = "curated-valorant-lambda-build"
+
+  tags = {
+    Project = var.project
+  }
+}
 
 /* lambda */
-module "lambda_function" {
+module "raw_job" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "raw_valorant_ingestion"
@@ -51,7 +58,7 @@ module "lambda_function" {
   publish       = true
   timeout       = 90
   store_on_s3   = true
-  s3_bucket     = aws_s3_bucket.lambda_package.id
+  s3_bucket     = aws_s3_bucket.raw_lambda_build.id
 
   source_path = [
     {
@@ -65,6 +72,31 @@ module "lambda_function" {
     PUUID  = "2ecce5c6-6d31-579c-bf56-bf6743e19270",
     REGION = "ap"
   }
+
+  tags = {
+    Project = var.project
+  }
+}
+
+module "curated_job" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "curated_valorant_transformation"
+  description   = "Curates raw Valorant match data and loads parquet to S3"
+  handler       = "main.main"
+  runtime       = "python3.10"
+  publish       = true
+  timeout       = 90
+  store_on_s3   = true
+  s3_bucket     = aws_s3_bucket.curated_lambda_build.id
+
+  source_path = [
+    {
+      path = "${path.module}/../src/transformation/",
+
+      poetry_install = true
+    }
+  ]
 
   tags = {
     Project = var.project

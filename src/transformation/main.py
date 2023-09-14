@@ -68,7 +68,7 @@ def write_df_to_s3(df, s3_client, bucket, key):
     s3_client.upload_file("competitive-match-data.parquet", bucket, key)
 
 
-def main():
+def main(event, context):
     # initialise session
     load_dotenv()
     AWS_ACCESS_KEY_ID = os.getenv("ACCESS_KEY_ID")
@@ -89,4 +89,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(None, None)
