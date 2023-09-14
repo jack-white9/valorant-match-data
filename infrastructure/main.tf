@@ -15,7 +15,7 @@ provider "aws" {
 
 /* s3 */
 
-resource "aws_s3_bucket" "raw_bucket" {
+resource "aws_s3_bucket" "raw" {
   bucket = "valorant-data-raw"
 
   tags = {
@@ -23,7 +23,7 @@ resource "aws_s3_bucket" "raw_bucket" {
   }
 }
 
-resource "aws_s3_bucket" "curated_bucket" {
+resource "aws_s3_bucket" "curated" {
   bucket = "valorant-data-curated"
 
   tags = {
@@ -31,42 +31,74 @@ resource "aws_s3_bucket" "curated_bucket" {
   }
 }
 
+resource "aws_s3_bucket" "raw_lambda_build" {
+  bucket = "raw-valorant-lambda-build"
 
-/* lambda */
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
+  tags = {
+    Project = var.project
   }
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
-  name               = "iam_for_lambda"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+resource "aws_s3_bucket" "curated_lambda_build" {
+  bucket = "curated-valorant-lambda-build"
+
+  tags = {
+    Project = var.project
+  }
 }
 
-data "archive_file" "raw_lambda_archive" {
-  type        = "zip"
-  source_file = "${path.module}/../src/ingestion/main.py"
-  output_path = "raw_lambda_function_payload.zip"
-}
+/* lambda */
+module "raw_job" {
+  source = "terraform-aws-modules/lambda/aws"
 
-resource "aws_lambda_function" "raw_lambda_function" {
-  # If the file is not in the current working directory you will need to include a
-  # path.module in the filename.
-  filename      = "raw_lambda_function_payload.zip"
   function_name = "raw_valorant_ingestion"
-  role          = aws_iam_role.iam_for_lambda.arn
+  description   = "Ingests raw Valorant match data into S3"
   handler       = "main.main"
+  runtime       = "python3.10"
+  publish       = true
+  timeout       = 90
+  store_on_s3   = true
+  s3_bucket     = aws_s3_bucket.raw_lambda_build.id
 
-  source_code_hash = data.archive_file.raw_lambda_archive.output_base64sha256
+  source_path = [
+    {
+      path = "${path.module}/../src/ingestion/",
 
-  runtime = "python3.10"
+      poetry_install = true
+    }
+  ]
+
+  environment_variables = {
+    PUUID  = "2ecce5c6-6d31-579c-bf56-bf6743e19270",
+    REGION = "ap"
+  }
+
+  tags = {
+    Project = var.project
+  }
 }
 
+module "curated_job" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "curated_valorant_transformation"
+  description   = "Curates raw Valorant match data and loads parquet to S3"
+  handler       = "main.main"
+  runtime       = "python3.10"
+  publish       = true
+  timeout       = 90
+  store_on_s3   = true
+  s3_bucket     = aws_s3_bucket.curated_lambda_build.id
+
+  source_path = [
+    {
+      path = "${path.module}/../src/transformation/",
+
+      poetry_install = true
+    }
+  ]
+
+  tags = {
+    Project = var.project
+  }
+}

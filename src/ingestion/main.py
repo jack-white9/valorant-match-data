@@ -28,7 +28,7 @@ def upload_to_s3(s3_client, bucket, key, file):
     s3_client.put_object(Body=file, Bucket=bucket, Key=key)
 
 
-def main():
+def main(event, context):
     load_dotenv()
     AWS_ACCESS_KEY_ID = os.getenv("ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.getenv("SECRET_ACCESS_KEY")
@@ -44,4 +44,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(None, None)

@@ -6,9 +6,11 @@ poetry.lock
 *.tfstate
 *.tfstate.*
 *.zip
+infrastructure/builds/
 
 # Misc
 .env
 .vscode
 *.parquet
 .idea
+.venv
