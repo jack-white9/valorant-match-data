@@ -53,7 +53,7 @@ module "raw_job" {
 
   function_name = "raw_valorant_ingestion"
   description   = "Ingests raw Valorant match data into S3"
-  handler       = "main.main"
+  handler       = "extract.main"
   runtime       = "python3.10"
   publish       = true
   timeout       = 90
@@ -62,7 +62,7 @@ module "raw_job" {
 
   source_path = [
     {
-      path = "${path.module}/../src/ingestion/",
+      path = "${path.module}/../src/etl/extract/",
 
       poetry_install = true
     }
@@ -83,7 +83,7 @@ module "curated_job" {
 
   function_name = "curated_valorant_transformation"
   description   = "Curates raw Valorant match data and loads parquet to S3"
-  handler       = "main.main"
+  handler       = "transform.main"
   runtime       = "python3.10"
   publish       = true
   timeout       = 90
@@ -92,7 +92,7 @@ module "curated_job" {
 
   source_path = [
     {
-      path = "${path.module}/../src/transformation/",
+      path = "${path.module}/../src/etl/transform/",
 
       poetry_install = true
     }
