@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "visualisation"
+version = "0.1.0"
+description = ""
+authors = ["Jack White <jfw793@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+boto3 = "^1.28.47"
+awswrangler = "^3.4.0"
+streamlit = "^1.26.0"
+matplotlib = "^3.7.3"
+plotly = "^5.16.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
