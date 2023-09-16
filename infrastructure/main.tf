@@ -47,26 +47,20 @@ resource "aws_s3_bucket" "curated_lambda_build" {
   }
 }
 
+
 /* lambda */
 module "raw_job" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "raw_valorant_ingestion"
-  description   = "Ingests raw Valorant match data into S3"
-  handler       = "extract.main"
-  runtime       = "python3.10"
-  publish       = true
-  timeout       = 90
-  store_on_s3   = true
-  s3_bucket     = aws_s3_bucket.raw_lambda_build.id
-
-  source_path = [
-    {
-      path = "${path.module}/../src/etl/extract/",
-
-      poetry_install = true
-    }
-  ]
+  function_name  = "raw_valorant_ingestion"
+  description    = "Ingests raw Valorant match data into S3"
+  handler        = "extract.main"
+  runtime        = "python3.10"
+  publish        = true
+  timeout        = 90
+  create_package = false
+  image_uri      = "295668360022.dkr.ecr.ap-southeast-2.amazonaws.com/valorant_lambda_images:extract"
+  package_type   = "Image"
 
   environment_variables = {
     PUUID  = "2ecce5c6-6d31-579c-bf56-bf6743e19270",

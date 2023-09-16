@@ -18,4 +18,4 @@ COPY . .
 
 RUN poetry install
 
-ENTRYPOINT ["poetry", "run", "python", "-m", "extract.main"]
+ENTRYPOINT ["poetry", "run", "python", "extract.py"]
